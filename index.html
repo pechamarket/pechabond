@@ -60,19 +60,19 @@
     <div class="container">
       <h2 class="section-title">든든폐차를 선택하는 이유</h2>
       <div class="reasons-grid">
-        <div class="reason-card" data-aos="fade-up" data-delay="0">
+        <div class="reason-card">
           <div class="reason-num">1</div>
           <div class="reason-icon"></div>
           <h3>안전한 폐차</h3>
           <p>믿을 수 있는 합법적 처리</p>
         </div>
-        <div class="reason-card" data-aos="fade-up" data-delay="100">
+        <div class="reason-card">
           <div class="reason-num">2</div>
           <div class="reason-icon"></div>
           <h3>공정한 보상</h3>
           <p>시세 기반 최대 보상<br />부당한 감가 없음</p>
         </div>
-        <div class="reason-card" data-aos="fade-up" data-delay="200">
+        <div class="reason-card">
           <div class="reason-num">3</div>
           <div class="reason-icon"></div>
           <h3>신속 간편</h3>
@@ -250,5 +250,26 @@
 
 
   <script src="script.js"></script>
+  <!-- Visitor Tracking Snippet -->
+  <script>
+    (function () {
+      var GAS_URL = "https://script.google.com/macros/s/AKfycbxKeICtnye1vJVbNuJjx7wCwH3pIxnt2ELJaIXzS0SCxF44kMNdyIx4qNjvj5CWhKlv/exec";
+      var SITE_NAME = window.location.hostname;
+
+      function sendPing(isFirst) {
+        var url = GAS_URL + "?site=" + encodeURIComponent(SITE_NAME) + "&t=" + Date.now();
+        if (isFirst) url += "&new=1";
+        fetch(url, { mode: 'no-cors' }).catch(function (e) { console.debug("ping failed"); });
+      }
+
+      sendPing(true);
+
+      setInterval(function () {
+        if (!document.hidden) {
+          sendPing(false);
+        }
+      }, 20000);
+    })();
+  </script>
 </body>
 </html>

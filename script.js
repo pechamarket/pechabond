@@ -65,16 +65,32 @@ backTop.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 's
 
 // ===== AOS (Animate On Scroll) =====
 const aosEls = document.querySelectorAll('[data-aos]');
+
 const aosObs = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       const delay = parseInt(entry.target.getAttribute('data-delay') || '0');
-      setTimeout(() => { entry.target.classList.add('aos-animate'); }, delay);
+      setTimeout(() => { 
+        entry.target.classList.add('aos-animate'); 
+      }, delay);
       aosObs.unobserve(entry.target);
     }
   });
-}, { threshold: 0.15 });
-aosEls.forEach(el => aosObs.observe(el));
+}, { 
+  root: null,
+  threshold: 0.05 // 더 낮은 임계값으로 작은 화면에서도 잘 작동하도록 수정
+});
+
+// 초기 체크 및 관찰 시작
+aosEls.forEach(el => {
+  aosObs.observe(el);
+  // 만약 이미 화면에 보이고 있다면 즉시 클래스 추가 (안전장치)
+  const rect = el.getBoundingClientRect();
+  if (rect.top < window.innerHeight && rect.bottom > 0) {
+    const delay = parseInt(el.getAttribute('data-delay') || '0');
+    setTimeout(() => { el.classList.add('aos-animate'); }, delay);
+  }
+});
 
 // ===== REVIEW SLIDER =====
 const track = document.getElementById('reviews-track');
@@ -171,8 +187,27 @@ function submitEstimate(e) {
     return;
   }
 
-  showToast('✅ 상담 신청이 완료되었습니다! 빠른 시간 내에 연락드리겠습니다.', true);
-  document.getElementById('estimate-form').reset();
+  // ===== TELEGRAM NOTIFICATION =====
+  const botToken = '8602319567:AAG8VPaq0Ia0DsRAPe5fyCKXo6yzA40kSm0';
+  const chatId = '8781562240';
+  const message = `🔔 [든든폐차 새로운 상담 신청]\n🚘 차량번호: ${carNum}\n📱 연락처: ${phone}\n🌐 출처: pecha.bond`;
+  
+  const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+  // 비동기로 전송 (사용자는 기다리지 않게 함)
+  fetch(telegramUrl)
+    .then(response => {
+      if (response.ok) {
+        showToast('✅ 상담 신청이 완료되었습니다! 확인 후 즉시 연락드리겠습니다.', true);
+        document.getElementById('estimate-form').reset();
+      } else {
+        showToast('알림 전송 중 문제가 발생했습니다. 관리자에게 문의해주세요.');
+      }
+    })
+    .catch(error => {
+      console.error('Telegram Error:', error);
+      showToast('네트워크 오류가 발생했습니다.');
+    });
 }
 
 // ===== TOAST NOTIFICATION =====
